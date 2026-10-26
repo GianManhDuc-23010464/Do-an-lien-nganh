@@ -11,9 +11,7 @@ import com.web.mapper.ProductMapper;
 import com.web.repository.*;
 import com.web.service.ProductService;
 import com.web.utils.CharacterUtils;
-import com.web.service.CloudinaryService;
 import com.web.utils.CommonPage;
-import com.web.utils.FindByImage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -21,16 +19,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import java.io.File;
-import java.io.IOException;
-import java.math.BigInteger;
 import java.sql.Date;
 import java.sql.Time;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -256,11 +249,6 @@ public class ProductServiceImpl implements ProductService {
         return page;
     }
 
-    @Override
-    public Page<ProductResponse> searchFull(Double smallPrice, Double largePrice, List<Long> listIdCategory, Pageable pageable) {
-        return null;
-    }
-
     /** Cột được phép sắp xếp (tránh SQL injection qua tham số sort). */
     private static final java.util.Map<String, String> SORTABLE = java.util.Map.of(
             "id", "p.id", "price", "p.price", "name", "p.name",
@@ -405,28 +393,5 @@ public class ProductServiceImpl implements ProductService {
             throw new MessageException("product not found");
         }
         return productMapper.productToProResponse(exist.get());
-    }
-
-
-    @Autowired
-    private FindByImage findByImage;
-
-    @Autowired
-    private CloudinaryService cloudinaryService;
-    @Override
-    public List<Product> findByImage(MultipartFile multipartFile) throws IOException {
-        List<ProductImage> links = productImageRepository.findAll();
-        List<Product> result = new ArrayList<>();
-        List<Double> res = new ArrayList<>();
-        File sr = File.createTempFile("search-", ".img");
-        try {
-            multipartFile.transferTo(sr);
-            for(ProductImage p : links){
-                res.add(findByImage.compare(p.getLinkImage(),sr));
-            }
-        } finally {
-            sr.delete();
-        }
-        return result;
     }
 }

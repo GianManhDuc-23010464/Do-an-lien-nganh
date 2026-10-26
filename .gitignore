@@ -8,7 +8,6 @@
 node_modules/
 frontend/build/
 frontend/dist/
-frontend-legacy/
 frontend/.env
 frontend/.env.local
 npm-debug.log*
