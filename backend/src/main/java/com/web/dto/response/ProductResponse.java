@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.web.entity.ProductCategory;
 import com.web.entity.ProductColor;
 import com.web.entity.ProductImage;
+import com.web.enums.ProductStatus;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -39,6 +40,12 @@ public class ProductResponse {
 
     /** Tổng tồn kho của mọi màu/size. */
     private Integer stock;
+
+    /** Trạng thái hiển thị: ACTIVE / HIDDEN / OUT_OF_STOCK (suy ra khi stock = 0). */
+    private ProductStatus status;
+
+    /** Có ít nhất một biến thể còn hàng nhưng dưới ngưỡng cảnh báo. */
+    private Boolean lowStock;
 
     private String description;
 

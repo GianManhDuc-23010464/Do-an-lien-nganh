@@ -53,7 +53,7 @@ export default function VariantSheet({ open, product, mode, initial, onClose, on
         <div className="flex gap-3 border-b border-line p-4">
           <img src={color?.linkImage || productImage(product)} alt="" className="size-24 shrink-0 bg-mist object-cover" />
           <div className="flex min-w-0 flex-1 flex-col justify-end">
-            <p className="text-lg font-semibold text-brand">{formatMoney(product.price)}</p>
+            <p className="text-lg font-semibold text-brand">{formatMoney(size?.effectivePrice ?? product.price)}</p>
             <p className="text-[13px] text-muted">Kho: {stock}</p>
             <p className="line-clamp-1 text-[13px] text-ink-soft">{[color?.colorName, size?.sizeName].filter(Boolean).join(', ') || 'Chọn màu và size'}</p>
           </div>

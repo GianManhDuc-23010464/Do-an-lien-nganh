@@ -3,6 +3,7 @@ package com.web.service;
 import com.web.dto.request.ProductRequest;
 import com.web.dto.response.ProductResponse;
 import com.web.entity.Product;
+import com.web.enums.ProductStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,10 @@ public interface ProductService {
     public Page<ProductResponse> searchFull(Double smallPrice, Double largePrice, List<Long> listIdCategory, Pageable pageable);
 
     public Page<ProductResponse> searchFullProduct(String keyword, Boolean onSale, Double smallPrice, Double largePrice, List<Long> listIdCategory, Pageable pageable);
+
+    public Page<ProductResponse> searchFullAdmin(String keyword, String status, Double smallPrice, Double largePrice, List<Long> listIdCategory, Pageable pageable);
+
+    public ProductResponse setStatus(Long id, ProductStatus status);
 
     public ProductResponse findByIdForAdmin(Long id);
 

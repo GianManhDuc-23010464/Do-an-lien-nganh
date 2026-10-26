@@ -31,4 +31,12 @@ public class InvoiceStatus {
     @ManyToOne
     @JoinColumn(name = "status_id")
     private Status status;
+
+    /** Id người đổi trạng thái; để trống nếu do hệ thống. */
+    @Column(name = "changed_by")
+    private Long changedBy;
+
+    /** Tên người đổi trạng thái (lưu kèm để hiện timeline không cần join). */
+    @Column(name = "changed_by_name")
+    private String changedByName;
 }

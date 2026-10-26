@@ -30,7 +30,7 @@ export default function OrderTimeline({ order }) {
             </span>
             <div className="pt-1">
               <p className={cx('font-semibold', !h && !isCurrent && 'text-muted')}>{STATUS_META[s]?.label}</p>
-              {h && <p className="text-sm text-muted">{formatDateTime(h.createdDate, h.createdTime)}</p>}
+              {h && <p className="text-sm text-muted">{formatDateTime(h.createdDate, h.createdTime)}{h.changedByName ? ` · ${h.changedByName}` : ''}</p>}
             </div>
           </li>
         )

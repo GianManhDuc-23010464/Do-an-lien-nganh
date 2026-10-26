@@ -131,7 +131,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                         + " chỉ còn " + (size.getQuantity() == null ? 0 : size.getQuantity()) + " sản phẩm");
             }
             sizes.put(e.getKey(), size);
-            subtotal += size.getProductColor().getProduct().getPrice() * e.getValue();
+            subtotal += effectivePrice(size) * e.getValue();
         }
 
         Invoice invoice = new Invoice();
@@ -169,7 +169,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             ProductSize size = sizes.get(e.getKey());
             InvoiceDetail detail = new InvoiceDetail();
             detail.setInvoice(result);
-            detail.setPrice(size.getProductColor().getProduct().getPrice());
+            detail.setPrice(effectivePrice(size));
             detail.setQuantity(e.getValue());
             detail.setProductSize(size);
             invoiceDetailRepository.save(detail);
@@ -531,8 +531,20 @@ public class InvoiceServiceImpl implements InvoiceService {
         history.setCreatedDate(new Date(System.currentTimeMillis()));
         history.setCreatedTime(new Time(System.currentTimeMillis()));
         history.setStatus(status(statusId));
+        // Ghi lại người thực hiện; để trống nếu do hệ thống (hết hạn thanh toán, IPN).
+        User actor = userUtils.getUserWithAuthority();
+        if (actor != null) {
+            history.setChangedBy(actor.getId());
+            history.setChangedByName(actor.getFullname() != null ? actor.getFullname() : actor.getUsername());
+        }
         invoiceStatusRepository.save(history);
         invoice.getInvoiceStatuses().add(history);
+    }
+
+    /** Giá bán biến thể: giá riêng nếu có, ngược lại giá sản phẩm. */
+    static double effectivePrice(ProductSize size) {
+        return size.getPrice() != null ? size.getPrice()
+                : size.getProductColor().getProduct().getPrice();
     }
 
     private static String formatAddress(UserAddress a) {

@@ -4,7 +4,7 @@ import { ChevronLeft, ShoppingBag } from 'lucide-react'
 import { useCart } from '../../lib/cart'
 import { useAuth } from '../../lib/auth'
 import { useDocumentTitle } from '../../lib/hooks'
-import { formatMoney, productImage } from '../../lib/format'
+import { formatMoney, productImage, variantPrice } from '../../lib/format'
 import { Empty, PageLoader, QuantityInput, useConfirm } from '../../components/ui'
 
 export default function Cart() {
@@ -69,18 +69,18 @@ export default function Cart() {
                     {over && <p className="mt-1 text-xs text-danger">Chỉ còn {it.size.quantity} sản phẩm</p>}
                     {/* Điện thoại: giá + số lượng ngay dưới tên */}
                     <div className="mt-2 flex items-center justify-between md:hidden">
-                      <span className="text-sm font-medium text-brand">{formatMoney(it.product.price)}</span>
+                      <span className="text-sm font-medium text-brand">{formatMoney(variantPrice(it))}</span>
                       <QuantityInput small value={it.quantity} max={Math.max(it.size.quantity, 1)} onChange={(q) => run(() => update(it.size.id, q))} />
                     </div>
                     <button className="mt-1 text-xs text-muted hover:text-danger md:hidden" onClick={() => removeItem(it)}>Xóa</button>
                   </div>
                 </div>
                 <span className="hidden text-center text-[13px] md:block">
-                  {it.product.oldPrice > it.product.price && <s className="mr-1.5 text-muted">{formatMoney(it.product.oldPrice)}</s>}
-                  {formatMoney(it.product.price)}
+                  {it.product.oldPrice > variantPrice(it) && <s className="mr-1.5 text-muted">{formatMoney(it.product.oldPrice)}</s>}
+                  {formatMoney(variantPrice(it))}
                 </span>
                 <div className="hidden justify-center md:flex"><QuantityInput small value={it.quantity} max={Math.max(it.size.quantity, 1)} onChange={(q) => run(() => update(it.size.id, q))} /></div>
-                <span className="hidden text-center text-[13px] font-medium text-brand md:block">{formatMoney(it.product.price * it.quantity)}</span>
+                <span className="hidden text-center text-[13px] font-medium text-brand md:block">{formatMoney(variantPrice(it) * it.quantity)}</span>
                 <button className="hidden text-[13px] text-ink-soft hover:text-danger md:block" onClick={() => removeItem(it)}>Xóa</button>
               </li>
             )

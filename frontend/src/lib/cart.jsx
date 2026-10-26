@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { api } from './api'
 import { useAuth } from './auth'
+import { variantPrice } from './format'
 
 /**
  * Giỏ hàng:
@@ -121,9 +122,9 @@ export function CartProvider({ children }) {
 
   const value = useMemo(() => {
     const count = items.length
-    const subtotal = items.reduce((s, i) => s + i.quantity * (i.product?.price || 0), 0)
+    const subtotal = items.reduce((s, i) => s + i.quantity * variantPrice(i), 0)
     const selectedItems = items.filter((i) => selected.has(i.size.id))
-    const selectedSubtotal = selectedItems.reduce((s, i) => s + i.quantity * (i.product?.price || 0), 0)
+    const selectedSubtotal = selectedItems.reduce((s, i) => s + i.quantity * variantPrice(i), 0)
     return { items, loading, count, subtotal, add, update, remove, refresh, selected, selectedItems, selectedSubtotal, toggle, selectAll, selectOnly }
   }, [items, loading, add, update, remove, refresh, selected, toggle, selectAll, selectOnly])
 

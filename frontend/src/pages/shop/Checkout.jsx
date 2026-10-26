@@ -6,7 +6,7 @@ import { api } from '../../lib/api'
 import { useCart } from '../../lib/cart'
 import { useFetch, useDocumentTitle } from '../../lib/hooks'
 import { SHIPPING_FEE } from '../../lib/config'
-import { formatMoney, fullAddress, productImage } from '../../lib/format'
+import { formatMoney, fullAddress, productImage, variantPrice } from '../../lib/format'
 import AddressForm from '../../components/shop/AddressForm'
 import { Modal, PageLoader, Spinner, cx } from '../../components/ui'
 
@@ -117,7 +117,7 @@ export default function Checkout() {
                 <div className="min-w-0 flex-1 text-[13px]">
                   <p className="line-clamp-1">{i.product.name}</p>
                   <p className="mt-0.5 text-xs text-muted">Phân loại: {i.color?.colorName}, {i.size.sizeName}</p>
-                  <div className="mt-1 flex justify-between"><span>{formatMoney(i.product.price)}</span><span className="text-muted">x{i.quantity}</span></div>
+                  <div className="mt-1 flex justify-between"><span>{formatMoney(variantPrice(i))}</span><span className="text-muted">x{i.quantity}</span></div>
                 </div>
               </li>
             ))}

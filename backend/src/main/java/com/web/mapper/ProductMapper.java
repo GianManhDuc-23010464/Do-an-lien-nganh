@@ -40,16 +40,33 @@ public class ProductMapper {
         response.setReviewCount(count);
         response.setAvgStar(count == 0 ? 0D : Math.round(sum / count * 10) / 10.0);
         int stock = 0;
+        boolean lowStock = false;
         if (product.getProductColors() != null) {
             for (com.web.entity.ProductColor color : product.getProductColors()) {
                 if (color.getProductSizes() == null) continue;
                 for (com.web.entity.ProductSize size : color.getProductSizes()) {
-                    stock += size.getQuantity() == null ? 0 : size.getQuantity();
+                    int qty = size.getQuantity() == null ? 0 : size.getQuantity();
+                    stock += qty;
+                    int threshold = size.getLowStockThreshold() == null ? DEFAULT_LOW_STOCK : size.getLowStockThreshold();
+                    if (qty > 0 && qty <= threshold) {
+                        lowStock = true;
+                    }
                 }
             }
         }
         response.setStock(stock);
+        response.setLowStock(lowStock);
+        // Trạng thái hiển thị: HIDDEN giữ nguyên, còn lại suy ra theo tồn kho.
+        if (com.web.enums.ProductStatus.HIDDEN.equals(product.getStatus())) {
+            response.setStatus(com.web.enums.ProductStatus.HIDDEN);
+        } else {
+            response.setStatus(stock == 0 ? com.web.enums.ProductStatus.OUT_OF_STOCK
+                    : com.web.enums.ProductStatus.ACTIVE);
+        }
     }
+
+    /** Ngưỡng cảnh báo sắp hết hàng mặc định khi biến thể không đặt riêng. */
+    public static final int DEFAULT_LOW_STOCK = 5;
 
     public Product productRequestToProduct(ProductRequest productRequest){
         Product product = mapper.map(productRequest, Product.class);

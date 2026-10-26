@@ -54,7 +54,7 @@ export default function Imports() {
 function ImportModal({ productId, onClose, onSaved }) {
   const [q, setQ] = useState('')
   const dq = useDebounced(q)
-  const results = useFetch(() => api.post('/api/product/public/searchFull', [], { keyword: dq, page: 0, size: 8 }), [dq])
+  const results = useFetch(() => api.post('/api/product/admin/search', [], { keyword: dq, page: 0, size: 8 }), [dq])
   const [product, setProduct] = useState(null)
   const [colorId, setColorId] = useState('')
   const [sizeId, setSizeId] = useState('')

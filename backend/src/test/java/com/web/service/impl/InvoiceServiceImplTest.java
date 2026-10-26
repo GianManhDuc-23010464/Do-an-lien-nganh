@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,6 +38,10 @@ class InvoiceServiceImplTest {
     @Mock private ProductRepository productRepository;
     @Mock private InvoiceStatusRepository invoiceStatusRepository;
     @Mock private com.web.mapper.InvoiceMapper invoiceMapper;
+    @Mock private CartItemRepository cartItemRepository;
+    @Mock private com.web.service.OrderMailService orderMailService;
+    @Mock private UserRepository userRepository;
+    @Mock private com.web.service.VoucherService voucherService;
 
     @InjectMocks
     private InvoiceServiceImpl invoiceService;
@@ -132,6 +137,82 @@ class InvoiceServiceImplTest {
         when(invoiceRepository.findById(9L)).thenReturn(Optional.of(invoice));
 
         assertThrows(MessageException.class, () -> invoiceService.cancelInvoice(9L));
+    }
+
+    @Test
+    void effectivePriceUsesVariantOverride() {
+        ProductSize size = sizeWithPrice(150000D, 100000D);
+        assertEquals(150000D, InvoiceServiceImpl.effectivePrice(size));
+    }
+
+    @Test
+    void effectivePriceFallsBackToProductPrice() {
+        ProductSize size = sizeWithPrice(null, 100000D);
+        assertEquals(100000D, InvoiceServiceImpl.effectivePrice(size));
+    }
+
+    @Test
+    void createUsesVariantPriceForSubtotal() {
+        User buyer = user(200L);
+        when(userUtils.getUserWithAuthority()).thenReturn(buyer);
+        when(userAddressRepository.findById(1L)).thenReturn(Optional.of(fullAddress(1L, buyer)));
+        when(productSizeRepository.findByIdForUpdate(10L))
+                .thenReturn(Optional.of(variant(10L, 150000D, 100000D, 10)));
+        when(statusRepository.findById(StatusUtils.DANG_CHO_XAC_NHAN))
+                .thenReturn(Optional.of(status(StatusUtils.DANG_CHO_XAC_NHAN)));
+        when(invoiceRepository.save(org.mockito.ArgumentMatchers.any(Invoice.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
+        when(invoiceMapper.invoiceToInvoiceResponse(org.mockito.ArgumentMatchers.any()))
+                .thenReturn(new com.web.dto.response.InvoiceResponse());
+        when(userRepository.getUserByRole(com.web.constants.Constants.ROLE_ADMIN)).thenReturn(List.of());
+
+        invoiceService.create(request(PayType.PAYMENT_DELIVERY, 2), "127.0.0.1");
+
+        org.mockito.ArgumentCaptor<Invoice> invCaptor = org.mockito.ArgumentCaptor.forClass(Invoice.class);
+        verify(invoiceRepository, org.mockito.Mockito.atLeastOnce()).save(invCaptor.capture());
+        assertEquals(300000D, invCaptor.getValue().getTotalAmount()); // 150000 (giá biến thể) x 2
+
+        org.mockito.ArgumentCaptor<InvoiceDetail> detailCaptor = org.mockito.ArgumentCaptor.forClass(InvoiceDetail.class);
+        verify(invoiceDetailRepository).save(detailCaptor.capture());
+        assertEquals(150000D, detailCaptor.getValue().getPrice());
+    }
+
+    private static ProductSize sizeWithPrice(Double variantPrice, Double productPrice) {
+        Product product = new Product();
+        product.setPrice(productPrice);
+        ProductColor color = new ProductColor();
+        color.setProduct(product);
+        ProductSize size = new ProductSize();
+        size.setProductColor(color);
+        size.setPrice(variantPrice);
+        return size;
+    }
+
+    private static ProductSize variant(Long id, Double variantPrice, Double productPrice, int quantity) {
+        ProductSize size = sizeWithPrice(variantPrice, productPrice);
+        size.setId(id);
+        size.setSizeName("M");
+        size.setQuantity(quantity);
+        return size;
+    }
+
+    private static UserAddress fullAddress(Long id, User user) {
+        Province province = new Province();
+        province.setName("Hà Nội");
+        Districts district = new Districts();
+        district.setName("Cầu Giấy");
+        district.setProvince(province);
+        Wards ward = new Wards();
+        ward.setName("Dịch Vọng");
+        ward.setDistricts(district);
+        UserAddress a = new UserAddress();
+        a.setId(id);
+        a.setUser(user);
+        a.setWards(ward);
+        a.setStreetName("12 Trần Thái Tông");
+        a.setPhone("0900000000");
+        a.setFullname("Nguyễn Văn A");
+        return a;
     }
 
     private static InvoiceRequest request(PayType payType, int quantity) {

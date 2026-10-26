@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { discountPercent, formatDate, formatMoney, fullAddress } from '../format'
+import { discountPercent, formatDate, formatMoney, fullAddress, variantPrice } from '../format'
 import { bannerLink } from '../links'
 
 describe('format', () => {
@@ -14,6 +14,11 @@ describe('format', () => {
     expect(discountPercent(199000, 249000)).toBe(20)
     expect(discountPercent(199000, null)).toBe(0)
     expect(discountPercent(300000, 200000)).toBe(0)
+  })
+  it('giá biến thể ưu tiên giá riêng rồi mới tới giá sản phẩm', () => {
+    expect(variantPrice({ size: { effectivePrice: 150000 }, product: { price: 100000 } })).toBe(150000)
+    expect(variantPrice({ size: {}, product: { price: 100000 } })).toBe(100000)
+    expect(variantPrice({})).toBe(0)
   })
   it('ghép địa chỉ đầy đủ', () => {
     const a = { streetName: '12 Lê Lợi', wards: { name: 'Bến Nghé', districts: { name: 'Quận 1', province: { name: 'TP.HCM' } } } }

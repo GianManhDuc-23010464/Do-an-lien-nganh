@@ -20,6 +20,11 @@ export function discountPercent(price, oldPrice) {
   return Math.round((1 - price / oldPrice) * 100)
 }
 
+/** Giá một dòng giỏ hàng: giá riêng của biến thể nếu có, ngược lại giá sản phẩm. */
+export function variantPrice(item) {
+  return item?.size?.effectivePrice ?? item?.product?.price ?? 0
+}
+
 export const PAY_TYPES = {
   PAYMENT_DELIVERY: 'Thanh toán khi nhận hàng',
   PAYMENT_MOMO: 'Ví MoMo',

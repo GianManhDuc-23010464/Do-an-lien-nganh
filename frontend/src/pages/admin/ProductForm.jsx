@@ -11,7 +11,7 @@ import { ErrorState, Field, PageLoader, Spinner, cx } from '../../components/ui'
 
 const PRESET_SIZES = ['S', 'M', 'L', 'XL', 'XXL']
 let tmpId = 0
-const newSize = (sizeName = '') => ({ key: `n${++tmpId}`, sizeName, quantity: 0 })
+const newSize = (sizeName = '') => ({ key: `n${++tmpId}`, sizeName, quantity: 0, sku: '', price: '', lowStockThreshold: '' })
 const newColor = () => ({ key: `n${++tmpId}`, colorName: '', linkImage: '', sizes: PRESET_SIZES.slice(0, 4).map(newSize) })
 
 export default function ProductForm() {
@@ -39,7 +39,7 @@ function Form({ product, categories }) {
   }))
   const [images, setImages] = useState(() => (product?.productImages || []).map((i) => ({ id: i.id, link: i.linkImage })))
   const [colors, setColors] = useState(() => product?.productColors?.length
-    ? product.productColors.map((c) => ({ id: c.id, key: `c${c.id}`, colorName: c.colorName, linkImage: c.linkImage, sizes: (c.productSizes || []).map((s) => ({ id: s.id, key: `s${s.id}`, sizeName: s.sizeName, quantity: s.quantity })) }))
+    ? product.productColors.map((c) => ({ id: c.id, key: `c${c.id}`, colorName: c.colorName, linkImage: c.linkImage, sizes: (c.productSizes || []).map((s) => ({ id: s.id, key: `s${s.id}`, sizeName: s.sizeName, quantity: s.quantity, sku: s.sku || '', price: s.price ?? '', lowStockThreshold: s.lowStockThreshold ?? '' })) }))
     : [newColor()])
   const [removed, setRemoved] = useState({ images: [], colors: [], sizes: [] })
   const [errors, setErrors] = useState({})
@@ -98,7 +98,14 @@ function Form({ product, categories }) {
         description: form.description,
         listCategoryIds: form.categoryIds,
         linkLinkImages: images.filter((i) => !i.id).map((i) => i.link),
-        colors: colors.map((c) => ({ id: c.id, colorName: c.colorName.trim(), linkImage: c.linkImage || null, size: c.sizes.map((s) => ({ id: s.id, sizeName: s.sizeName.trim(), quantity: Number(s.quantity) || 0 })) })),
+        colors: colors.map((c) => ({ id: c.id, colorName: c.colorName.trim(), linkImage: c.linkImage || null, size: c.sizes.map((s) => ({
+          id: s.id,
+          sizeName: s.sizeName.trim(),
+          quantity: Number(s.quantity) || 0,
+          sku: s.sku?.trim() || null,
+          price: s.price === '' || s.price == null ? null : Number(s.price),
+          lowStockThreshold: s.lowStockThreshold === '' || s.lowStockThreshold == null ? null : Number(s.lowStockThreshold),
+        })) })),
       }
       const res = await api.post(isNew ? '/api/product/admin/create' : '/api/product/admin/update', body)
       toast.success(isNew ? 'Đã thêm sản phẩm' : 'Đã lưu thay đổi')
@@ -145,23 +152,29 @@ function Form({ product, categories }) {
                         <Field label="Tên màu" className="flex-1"><input className="field h-10" value={c.colorName} onChange={(e) => updateColor(c.key, { colorName: e.target.value })} placeholder="Đen, Trắng kem…" /></Field>
                         <button type="button" className="btn btn-ghost btn-sm h-10 px-2 text-danger" onClick={() => removeColor(c)} aria-label="Xóa màu"><Trash2 className="size-4" /></button>
                       </div>
-                      <div className="mt-3 flex flex-wrap gap-2">
+                      <div className="mt-3 space-y-2">
+                        <div className="hidden grid-cols-[1fr_72px_1.4fr_1fr_84px_28px] gap-2 px-0.5 text-[11px] font-medium text-muted sm:grid">
+                          <span>Size</span><span>Kho</span><span>SKU</span><span>Giá riêng (đ)</span><span>Ngưỡng</span><span />
+                        </div>
                         {c.sizes.map((s) => (
-                          <div key={s.key} className="flex items-center overflow-hidden rounded-sm border border-line">
-                            <input className="h-9 w-14 border-r border-line bg-mist px-2 text-center text-sm font-semibold outline-none focus:bg-paper" value={s.sizeName} onChange={(e) => updateSize(c.key, s.key, { sizeName: e.target.value })} aria-label="Tên size" />
-                            <input className="h-9 w-16 px-2 text-sm outline-none" type="number" min="0" value={s.quantity} onChange={(e) => updateSize(c.key, s.key, { quantity: e.target.value })} aria-label={`Số lượng size ${s.sizeName}`} />
+                          <div key={s.key} className="grid grid-cols-2 items-center gap-2 sm:grid-cols-[1fr_72px_1.4fr_1fr_84px_28px]">
+                            <input className="field h-9" value={s.sizeName} onChange={(e) => updateSize(c.key, s.key, { sizeName: e.target.value })} placeholder="Size" aria-label="Tên size" />
+                            <input className="field h-9" type="number" min="0" value={s.quantity} onChange={(e) => updateSize(c.key, s.key, { quantity: e.target.value })} aria-label={`Tồn kho size ${s.sizeName}`} />
+                            <input className="field h-9" value={s.sku} onChange={(e) => updateSize(c.key, s.key, { sku: e.target.value })} placeholder="Tự đặt" aria-label={`SKU size ${s.sizeName}`} />
+                            <input className="field h-9" type="number" min="0" step="1000" value={s.price} onChange={(e) => updateSize(c.key, s.key, { price: e.target.value })} placeholder="Theo giá SP" aria-label={`Giá riêng size ${s.sizeName}`} />
+                            <input className="field h-9" type="number" min="0" value={s.lowStockThreshold} onChange={(e) => updateSize(c.key, s.key, { lowStockThreshold: e.target.value })} placeholder="5" aria-label={`Ngưỡng cảnh báo size ${s.sizeName}`} />
                             <button type="button" className="grid h-9 w-7 place-items-center text-muted hover:text-danger" onClick={() => removeSize(c.key, s)} aria-label="Xóa size"><X className="size-3.5" /></button>
                           </div>
                         ))}
                         <button type="button" className="h-9 rounded-sm border border-dashed border-line px-3 text-sm font-medium text-muted hover:border-ink hover:text-ink"
-                          onClick={() => { const used = c.sizes.map((s) => s.sizeName); updateColor(c.key, { sizes: [...c.sizes, newSize(PRESET_SIZES.find((x) => !used.includes(x)) || '')] }) }}>+ Size</button>
+                          onClick={() => { const used = c.sizes.map((s) => s.sizeName); updateColor(c.key, { sizes: [...c.sizes, newSize(PRESET_SIZES.find((x) => !used.includes(x)) || '')] }) }}>+ Thêm size</button>
                       </div>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
-            <p className="mt-3 text-xs text-muted">Số lượng ở đây là tồn kho hiện tại. Khi nhập thêm hàng, dùng mục Nhập hàng để có lịch sử nhập.</p>
+            <p className="mt-3 text-xs text-muted">Số lượng là tồn kho hiện tại (khi nhập thêm hàng, dùng mục Nhập hàng để có lịch sử). Giá riêng để trống sẽ dùng giá sản phẩm. Ngưỡng để trống mặc định là 5.</p>
           </Panel>
         </div>
 

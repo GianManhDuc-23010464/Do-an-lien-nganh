@@ -76,6 +76,8 @@ function Detail({ product }) {
     ? api.post('/api/product/public/searchFull', [categoryId], { page: 0, size: 6, sort: 'quantitySold,desc' })
     : Promise.resolve(null), [categoryId])
   const pct = discountPercent(product.price, product.oldPrice)
+  // Giá hiển thị theo biến thể đang chọn (nếu biến thể có giá riêng).
+  const unitPrice = size?.effectivePrice ?? product.price
 
   return (
     <div className="container-x pb-24 pt-4 md:pb-0">
@@ -112,7 +114,7 @@ function Detail({ product }) {
 
           <div className="mt-5 flex flex-wrap items-baseline gap-3 bg-mist px-4 py-3">
             {pct > 0 && <s className="text-sm text-muted">{formatMoney(product.oldPrice)}</s>}
-            <span className="text-2xl font-semibold text-brand">{formatMoney(product.price)}</span>
+            <span className="text-2xl font-semibold text-brand">{formatMoney(unitPrice)}</span>
             {pct > 0 && <span className="bg-brand px-1.5 text-xs font-semibold text-white">-{pct}%</span>}
           </div>
 

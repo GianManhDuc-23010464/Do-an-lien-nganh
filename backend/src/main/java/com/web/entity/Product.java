@@ -3,6 +3,7 @@ package com.web.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.web.enums.ProductStatus;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -35,6 +36,14 @@ public class Product {
 
     /** Giá gốc trước khi giảm (để hiện badge % giảm). Bỏ trống nếu không giảm giá. */
     private Double oldPrice;
+
+    /**
+     * Trạng thái do admin đặt: chỉ ACTIVE (đang bán) hoặc HIDDEN (ẩn khỏi khách).
+     * OUT_OF_STOCK không lưu ở đây mà được suy ra khi tồn kho = 0 (xem ProductMapper).
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 20)
+    private ProductStatus status;
 
     private String description;
 
