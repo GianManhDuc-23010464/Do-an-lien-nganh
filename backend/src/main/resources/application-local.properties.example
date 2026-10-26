@@ -1,0 +1,19 @@
+# Copy file này thành application-local.properties rồi điền giá trị thật.
+# File application-local.properties đã nằm trong .gitignore.
+
+spring.datasource.password=
+
+# Chuỗi base64 ngẫu nhiên, vd: openssl rand -base64 64
+app.jwt.secret=
+
+# Gmail + App Password (https://myaccount.google.com/apppasswords)
+spring.mail.username=
+spring.mail.password=
+
+cloudinary.cloud-name=
+cloudinary.api-key=
+cloudinary.api-secret=
+
+# VNPay sandbox: đăng ký tại https://sandbox.vnpayment.vn/devreg/
+vnpay.tmn-code=
+vnpay.hash-secret=

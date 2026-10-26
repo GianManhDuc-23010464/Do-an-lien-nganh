@@ -1,19 +1,26 @@
-# OS
+# OS / editor
 .DS_Store
+.idea/
+.vscode/
+*.iml
 
 # Frontend
-fe/node_modules/
-fe/build/
+node_modules/
+frontend/build/
+frontend/dist/
+frontend-legacy/
+frontend/.env
+frontend/.env.local
 npm-debug.log*
 
 # Backend
-Backend/target/
-Backend/.idea/
-Backend/*.iml
-Backend/.classpath
-Backend/.factorypath
-Backend/.project
-Backend/.settings/
+backend/target/
+backend/.classpath
+backend/.factorypath
+backend/.project
+backend/.settings/
 
-# Secrets
-Backend/src/main/resources/firebase-service-account.json
+# Secrets (xem các file *.example tương ứng)
+backend/src/main/resources/application-local.properties
+backend/src/main/resources/environment.properties
+backend/src/main/resources/firebase-service-account.json

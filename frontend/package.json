@@ -1,0 +1,31 @@
+{
+  "name": "project-sell-frontend",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@fontsource/be-vietnam-pro": "^5.1.1",
+    "chart.js": "^4.4.6",
+    "dompurify": "^3.2.1",
+    "lucide-react": "^0.460.0",
+    "react": "^18.3.1",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "^18.3.1",
+    "react-quill-new": "^3.3.3",
+    "react-router-dom": "^6.28.0",
+    "sonner": "^1.7.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.4",
+    "@vitejs/plugin-react": "^4.3.4",
+    "tailwindcss": "^4.1.4",
+    "vite": "^5.4.11",
+    "vitest": "^2.1.8"
+  }
+}
