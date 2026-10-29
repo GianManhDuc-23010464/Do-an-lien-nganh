@@ -4,6 +4,31 @@
 
 ![Java](https://img.shields.io/badge/Java-17-orange) ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.7.12-green) ![React](https://img.shields.io/badge/React-18-blue) ![MySQL](https://img.shields.io/badge/MySQL-8-blue)
 
+## ⚡ Chạy nhanh (dành cho người chấm)
+
+Chỉ cần **MySQL** chạy sẵn; không cần key Firebase / MoMo / VNPay (thiếu vẫn chạy, chỉ tắt tính năng tương ứng).
+
+```bash
+# 1. Database
+mysql -u root -p -e "CREATE DATABASE project_sell CHARACTER SET utf8mb4"
+mysql -u root -p project_sell < backend/sql/project_sell.sql
+mysql -u root -p project_sell < backend/sql/migration_v2.sql
+mysql -u root -p project_sell < backend/sql/migration_v3.sql
+
+# 2. Backend — tạo file cấu hình rồi điền MẬT KHẨU MySQL của bạn
+cd backend/src/main/resources
+cp application-local.properties.example application-local.properties
+# mở file, sửa dòng: spring.datasource.password=<mật khẩu MySQL của bạn>
+cd ../../../.. && cd backend
+export JAVA_HOME=$(/usr/libexec/java_home -v 17)      # macOS
+./mvnw spring-boot:run                                # http://localhost:8080
+
+# 3. Frontend (terminal khác)
+cd frontend && cp .env.example .env && npm install && npm run dev   # http://localhost:5173
+```
+
+Đăng nhập quản trị: `admin@gmail.com` / `admin123` tại http://localhost:5173/admin
+
 ## 🔗 Demo
 - Live: _chưa deploy_
 - Frontend (local): http://localhost:5173
