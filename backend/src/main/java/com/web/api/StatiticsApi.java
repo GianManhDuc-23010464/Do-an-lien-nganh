@@ -85,10 +85,13 @@ public class StatiticsApi {
         res.put("topProducts", top);
         List<java.util.Map<String, Object>> low = new ArrayList<>();
         for (com.web.entity.ProductSize s : productSizeRepository.findLowStock(5, org.springframework.data.domain.PageRequest.of(0, 8))) {
+            // Biến thể "mồ côi": sản phẩm đã xóa nhưng màu/size giữ lại cho đơn cũ -> bỏ qua.
+            com.web.entity.Product p = s.getProductColor() == null ? null : s.getProductColor().getProduct();
+            if (p == null) continue;
             java.util.Map<String, Object> m = new java.util.LinkedHashMap<>();
             m.put("productSizeId", s.getId());
-            m.put("productId", s.getProductColor().getProduct().getId());
-            m.put("productName", s.getProductColor().getProduct().getName());
+            m.put("productId", p.getId());
+            m.put("productName", p.getName());
             m.put("color", s.getProductColor().getColorName());
             m.put("size", s.getSizeName());
             m.put("quantity", s.getQuantity());
