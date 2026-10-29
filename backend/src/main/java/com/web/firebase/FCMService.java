@@ -9,6 +9,8 @@ import com.google.firebase.messaging.*;
 import com.web.dto.request.PushNotificationRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
@@ -19,9 +21,11 @@ public class FCMService {
 
     private Logger logger = LoggerFactory.getLogger(FCMService.class);
 
+    // Có thể null khi không cấu hình Firebase (thiếu firebase-service-account.json).
+    @Nullable
     private final FirebaseMessaging firebaseMessaging;
 
-    public FCMService(FirebaseMessaging firebaseMessaging) {
+    public FCMService(@Autowired(required = false) @Nullable FirebaseMessaging firebaseMessaging) {
         this.firebaseMessaging = firebaseMessaging;
     }
 
@@ -36,6 +40,10 @@ public class FCMService {
     }
 
     private String sendAndGetResponse(Message message) throws InterruptedException, ExecutionException {
+        if (firebaseMessaging == null) {
+            logger.warn("Firebase chưa cấu hình — bỏ qua push notification.");
+            return null;
+        }
         try {
             return firebaseMessaging.send(message);
         } catch (FirebaseMessagingException e) {
